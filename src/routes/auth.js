@@ -1,15 +1,15 @@
 const config = require('../config/config');
-var express = require('express');
-var passport = require('passport');
-var GoogleStrategy = require('passport-google-oidc');
+const express = require('express');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 passport.use(new GoogleStrategy({
     clientID: config.google_client_id,
     clientSecret: config.google_client_secret,
     callbackURL: `${config.backend_domain}api/v1/auth/oauth2/redirect/google`,
-    scope: ['profile']
-}, function verify(issuer, profile, cb) {
-    return cb(null, profile);
+}, function verify(accessToken, refreshToken, profile, cb) {
+    const user = profile._json
+    return cb(null, user);
 }));
 
 passport.serializeUser(function (user, cb) {
@@ -26,7 +26,7 @@ passport.deserializeUser(function (user, cb) {
 
 var router = express.Router();
 
-router.get('/login/federated/google', passport.authenticate('google'));
+router.get('/login/federated/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/oauth2/redirect/google', (req, res, next) => {
     passport.authenticate('google', (err, user, info) => {
