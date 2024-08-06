@@ -49,7 +49,8 @@ router.post('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Logout failed');
         }
-        return res.status(200).send('Logout failed'); // Redirect to the desired page after logout
+        req.session.destroy(); // Destroy session on logout
+        return res.status(200).send('Logout Successful'); // Redirect to the desired page after logout
     });
 });
 
