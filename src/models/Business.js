@@ -2,11 +2,12 @@ const mongoose = require('mongoose');
 const { getISTDate } = require('../utils/dateUtils');
 
 const businessSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  user_id: { type: String, required: true },
   city: { type: String, required: true },
   category: { type: String, required: true },
   name: { type: String, required: true },
   owner: { type: String, required: true },
+  email: { type: String, required: true },
   mobile: { type: Number, required: true },
   service: {
     type: [String],

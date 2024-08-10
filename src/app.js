@@ -7,6 +7,7 @@ const passport = require('./passport');
 const authRouter = require('./routes/auth');
 const googleAuthRouter = require('./routes/googleAuth');
 const userRouter = require('./routes/user');
+const businessRouter = require('./routes/business');
 const authenticateJWT = require('./middleware/authenticateJWT');
 
 const app = express()
@@ -37,5 +38,6 @@ app.use('/api/v1/auth', googleAuthRouter);
 
 // Use the user routers
 app.use('/api/v1/users', authenticateJWT, userRouter);
+app.use('/api/v1/business', businessRouter);
 
 module.exports = app;
