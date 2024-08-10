@@ -25,11 +25,17 @@ router.get('/oauth2/redirect/google', (req, res, next) => {
                 // If user doesn't exist, create a new user
                 existingUser = new User(user);
                 await existingUser.save();
+                // Optionally, select only specific fields
+                existingUser = await User.findById(existingUser._id, { name: 1, mobile: 1, city: 1, email: 1, image: 1, type: 1 });
             } else {
                 // Update the last_logged_in_at field for existing user
-                await User.updateOne(
+                existingUser = await User.findOneAndUpdate(
                     { email: user.email },
-                    { $set: { last_logged_in_at: getISTDate() } }
+                    { $set: { last_logged_in_at: getISTDate() } },
+                    {
+                      new: true, // Return the updated document
+                      fields: { name: 1, mobile: 1, city: 1, email: 1, image: 1, type: 1 }, // Specify fields to include
+                    }
                 );
             }
 
@@ -46,7 +52,7 @@ router.get('/oauth2/redirect/google', (req, res, next) => {
             const token = jwt.sign(payload, config.jwt_secret, options);
 
             // Encode user profile
-            const encodedUserProfile = encodeURIComponent(JSON.stringify(user));
+            const encodedUserProfile = encodeURIComponent(JSON.stringify(existingUser));
 
             // Redirect to frontend with token and user profile
             return res.redirect(`${config.frontend_domain}${config.frontend_on_login_redirect_path}?token=${token}&user=${encodedUserProfile}`);
