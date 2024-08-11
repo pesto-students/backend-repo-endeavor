@@ -17,4 +17,33 @@ router.post('/insert', async (req, res) => {
     }
 });
 
+// Endpoint to search businesses with pagination, filter and sorting
+router.post('/search', async (req, res) => {
+    try {
+        const { page = 1, limit = 10, filter, projection, sortBy } = req.body;
+
+        // Calculate the number of documents to skip for pagination
+        const skip = (page - 1) * limit;
+
+        // Query to find businesses, sorted and paginated
+        const businesses = await Business.find(filter, projection)
+            .sort(sortBy)
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        // Count total documents for the filter
+        const totalDocuments = await Business.countDocuments(filter);
+
+        // Send response with businesses and pagination info
+        res.status(200).json({
+            totalPages: Math.ceil(totalDocuments / limit),
+            currentPage: parseInt(page),
+            businesses,
+        });
+    } catch (error) {
+        console.error('Error searching businesses:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;
