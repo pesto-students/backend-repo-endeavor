@@ -2,8 +2,7 @@ const config = require('../config/config');
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { getISTDate } = require('../utils/dateUtils');
+const { findOrCreateUser } = require('../services/user');
 
 const router = express.Router();
 
@@ -19,25 +18,7 @@ router.get('/oauth2/redirect/google', (req, res, next) => {
         }
 
         try {
-            // Check if user already exists
-            let existingUser = await User.findOne({ email: user.email });
-            if (!existingUser) {
-                // If user doesn't exist, create a new user
-                existingUser = new User(user);
-                await existingUser.save();
-                // Optionally, select only specific fields
-                existingUser = await User.findById(existingUser._id, { name: 1, mobile: 1, city: 1, email: 1, image: 1, type: 1 });
-            } else {
-                // Update the last_logged_in_at field for existing user
-                existingUser = await User.findOneAndUpdate(
-                    { email: user.email },
-                    { $set: { last_logged_in_at: getISTDate() } },
-                    {
-                      new: true, // Return the updated document
-                      fields: { name: 1, mobile: 1, city: 1, email: 1, image: 1, type: 1 }, // Specify fields to include
-                    }
-                );
-            }
+            const userProfile = await findOrCreateUser(user);
 
             // Payload to be encoded into the token
             const payload = {
@@ -52,7 +33,7 @@ router.get('/oauth2/redirect/google', (req, res, next) => {
             const token = jwt.sign(payload, config.jwt_secret, options);
 
             // Encode user profile
-            const encodedUserProfile = encodeURIComponent(JSON.stringify(existingUser));
+            const encodedUserProfile = encodeURIComponent(JSON.stringify(userProfile));
 
             // Redirect to frontend with token and user profile
             return res.redirect(`${config.frontend_domain}${config.frontend_on_login_redirect_path}?token=${token}&user=${encodedUserProfile}`);

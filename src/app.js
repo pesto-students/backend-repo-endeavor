@@ -6,8 +6,7 @@ const console_logging = require('./middleware/logging');
 const passport = require('./passport');
 const authRouter = require('./routes/auth');
 const googleAuthRouter = require('./routes/googleAuth');
-const userRouter = require('./routes/user');
-const businessRouter = require('./routes/business');
+const { dbRouter } = require('./routes/dbRouter');
 const authenticateJWT = require('./middleware/authenticateJWT');
 
 const app = express()
@@ -15,7 +14,7 @@ const app = express()
 // CORS configuration
 app.use(cors({
   origin: config.frontend_domain, // Allow requests from this origin
-  methods: 'GET,POST',
+  methods: 'GET,POST,PATCH',
   credentials: true, // Allow cookies to be sent
 }));
 
@@ -36,8 +35,7 @@ app.use(passport.initialize());
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/auth', googleAuthRouter); 
 
-// Use the user routers
-app.use('/api/v1/users', authenticateJWT, userRouter);
-app.use('/api/v1/business', businessRouter);
+// Use the db router
+app.use('/api/v1', authenticateJWT, dbRouter);
 
 module.exports = app;
