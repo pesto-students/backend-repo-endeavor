@@ -1,4 +1,3 @@
-const axios = require('axios');
 const { getISTDate } = require('../utils/dateUtils');
 const User = require('../models/User');
 
