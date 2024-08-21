@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/pesto-students/backend-repo-endeavor#readme",
   "dependencies": {
+    "@google-cloud/storage": "^7.12.1",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -28,7 +29,9 @@
     "express-session": "^1.18.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.2",
+    "multer": "^1.4.5-lts.1",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "sharp": "^0.33.5"
   }
 }

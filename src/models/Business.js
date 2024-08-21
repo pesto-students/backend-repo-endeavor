@@ -16,7 +16,12 @@ const businessSchema = new mongoose.Schema({
   },
   address: { type: String, required: true },
   logo: { type: String },
+  logoThumbnail: { type: String },
   gallery: {
+    type: [String],
+    validate: [arrayLimit, '{PATH} exceeds the limit of 10'],
+  },
+  galleryThumbnails: {
     type: [String],
     validate: [arrayLimit, '{PATH} exceeds the limit of 10'],
   },
