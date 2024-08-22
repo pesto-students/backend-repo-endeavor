@@ -6,8 +6,8 @@ const console_logging = require('./middleware/logging');
 const passport = require('./passport');
 const authRouter = require('./routes/auth');
 const googleAuthRouter = require('./routes/googleAuth');
-const { dbRouter } = require('./routes/dbRouter');
 const businessRouter = require('./routes/business');
+const userRouter = require('./routes/user');
 const authenticateJWT = require('./middleware/authenticateJWT');
 
 const app = express()
@@ -39,7 +39,7 @@ app.use('/api/v1/auth', googleAuthRouter);
 // Use business router
 app.use('/api/v1/business', businessRouter);
 
-// Use the db router
-app.use('/api/v1', authenticateJWT, dbRouter);
+// Use the user router
+app.use('/api/v1/user', authenticateJWT, userRouter);
 
 module.exports = app;

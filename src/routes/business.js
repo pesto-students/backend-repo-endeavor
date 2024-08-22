@@ -124,6 +124,38 @@ router.post('/new', upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'g
     }
 });
 
+// Endpoint to read/search an existing business
+router.post('/search', async (req, res) => {
+    const { page = 1, limit = 10, filter = {}, projection = {}, sortBy = {} } = req.body;
+
+    try {
+        // Enforce a maximum limit of 10 documents per request
+        const enforcedLimit = Math.min(parseInt(limit, 10), 10);
+
+        // Calculate the number of documents to skip for pagination
+        const skip = (page - 1) * enforcedLimit;
+
+        // Query to find documents, sorted and paginated
+        const documents = await Business.find(filter, projection)
+            .sort(sortBy)
+            .skip(skip)
+            .limit(parseInt(enforcedLimit, 10)); // Ensure limit is parsed as an integer
+
+        // Count total documents for the filter
+        const totalDocuments = await Business.countDocuments(filter);
+
+        // Send response with documents and pagination info
+        res.status(200).json({
+            totalPages: Math.ceil(totalDocuments / enforcedLimit),
+            currentPage: parseInt(page, 10), // Ensure limit is parsed as an integer
+            documents,
+        });
+    } catch (error) {
+        console.error(`Error searching business, error:`, error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Endpoint to update an existing business
 router.put('/update/:businessId', upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'galleryFile', maxCount: 10 }]), async (req, res) => {
     try {
