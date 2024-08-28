@@ -8,6 +8,9 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   image: { type: String, default: null },
   type: { type: String, enum: ['consumer', 'business'], default: null },
+  rating: { type: Number, default: 0 },
+  total_rating: { type: Number, default: 0 },
+  total_rated: { type: Number, default: 0 },
   created_at: { type: Date, default: getISTDate },
   updated_at: { type: Date, default: null },
   last_logged_in_at: { type: Date, default: getISTDate }

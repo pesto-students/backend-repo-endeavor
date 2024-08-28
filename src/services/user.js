@@ -1,7 +1,7 @@
 const { getISTDate } = require('../utils/dateUtils');
 const User = require('../models/User');
 
-const projection = { name: 1, mobile: 1, city: 1, email: 1, image: 1, type: 1 };
+const projection = { name: 1, mobile: 1, city: 1, email: 1, image: 1, type: 1, rating: 1 };
 
 const findOrCreateUser = async (user) => {
     try {
@@ -30,5 +30,6 @@ const findOrCreateUser = async (user) => {
 }
 
 module.exports = {
-    findOrCreateUser
+    findOrCreateUser,
+    projection
 };

@@ -6,6 +6,9 @@ const Business = require('../models/Business');
 const fs = require('fs'); // Import the fs module
 const path = require('path');
 const { formatDateForFilename } = require('../utils/dateUtils');
+const Rating = require('../models/Rating');
+const User = require('../models/User');
+const { updateRating } = require('./rating');
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' }); // Temporary storage before uploading to Google Cloud Storage
@@ -319,7 +322,7 @@ router.delete('/delete/:businessId', async (req, res) => {
             return res.status(404).json({ message: 'Business not found.' });
         }
 
-        const { user_id, logo, logoThumbnail, gallery, galleryThumbnails } = business;
+        const { user_id, logo, logoThumbnail, gallery, galleryThumbnails, rating } = business;
 
         const deletePromises = [];
 
@@ -354,6 +357,9 @@ router.delete('/delete/:businessId', async (req, res) => {
 
         // Step 5: Delete the business record from the database
         await Business.findByIdAndDelete(businessId);
+        await Rating.deleteMany({ business_id: businessId });
+        const businessUser = await User.findOne({ email: user_id });
+        await updateRating(businessUser, -1, -rating);
 
         res.status(200).json({ message: 'Business deleted successfully.' });
 

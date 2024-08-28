@@ -8,6 +8,7 @@ const authRouter = require('./routes/auth');
 const googleAuthRouter = require('./routes/googleAuth');
 const businessRouter = require('./routes/business');
 const userRouter = require('./routes/user');
+const { router: ratingRouter } = require('./routes/rating');
 const authenticateJWT = require('./middleware/authenticateJWT');
 
 const app = express()
@@ -41,5 +42,8 @@ app.use('/api/v1/business', businessRouter);
 
 // Use the user router
 app.use('/api/v1/user', authenticateJWT, userRouter);
+
+// Use the rating router
+app.use('/api/v1/rating', ratingRouter);
 
 module.exports = app;

@@ -1,6 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const User = require("../models/User");
+const { projection } = require('../services/user');
+
+// Read User
+router.post('/search/:email', async (req, res) => {
+    try {
+        const email = req.params.email;
+
+        const userProfile = await User.findOne({ email }, projection);
+
+        if (!userProfile) {
+            return res.status(404).json({ message: 'Rating not found' });
+        }
+
+        res.status(200).json({ userProfile });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // Endpoint to update an existing user
 router.patch('/update', async (req, res) => {
