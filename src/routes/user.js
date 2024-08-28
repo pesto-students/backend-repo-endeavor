@@ -4,11 +4,11 @@ const User = require("../models/User");
 const { projection } = require('../services/user');
 
 // Read User
-router.post('/search/:email', async (req, res) => {
+router.post('/search/:id', async (req, res) => {
     try {
-        const email = req.params.email;
+        const user_id = req.params.id;
 
-        const userProfile = await User.findOne({ email }, projection);
+        const userProfile = await User.findById(user_id, projection);
 
         if (!userProfile) {
             return res.status(404).json({ message: 'Rating not found' });
