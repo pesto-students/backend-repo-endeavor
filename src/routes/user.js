@@ -21,9 +21,10 @@ router.post('/search/:id', async (req, res) => {
 });
 
 // Endpoint to update an existing user
-router.patch('/update', async (req, res) => {
-    const { email, mobile, city, type } = req.body;
-    const query = { email };
+router.patch('/update/:userId', async (req, res) => {
+    const { mobile, city, type } = req.body;
+    const userId = req.params.userId
+    const query = { _id: userId };
     const updateFields = { mobile, city, type };
     const projection = { name: 1, mobile: 1, city: 1, email: 1, image: 1, type: 1 };
 

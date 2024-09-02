@@ -16,7 +16,7 @@ const upload = multer({ dest: 'uploads/' }); // Temporary storage before uploadi
 // Initialize Google Cloud Storage
 const storage = new Storage({ keyFilename: "./gcs-crud.json" });
 const bucket = storage.bucket('around-photos');
-const google_photos_domain = 'https://storage.cloud.google.com';
+const google_photos_domain = 'https://storage.googleapis.com';
 
 // Endpoint to create a new business
 router.post('/new', upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'galleryFile', maxCount: 10 }]), async (req, res) => {
@@ -44,7 +44,7 @@ router.post('/new', upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'g
             const uploadLogo = fs.promises.readFile(logoFile.path)
                 .then(data => logoBlob.save(data, { resumable: false }))
                 .then(() => {
-                    logoUrl = `${google_photos_domain}/${bucket.name}/${logoBlob.name}?authuser=2`;
+                    logoUrl = `${google_photos_domain}/${bucket.name}/${logoBlob.name}`;
                 });
 
             // Create and upload the thumbnail
@@ -53,7 +53,7 @@ router.post('/new', upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'g
                 .toBuffer()
                 .then(data => logoThumbnailBlob.save(data, { contentType: 'image/jpeg', resumable: false }))
                 .then(() => {
-                    logoThumbnailUrl = `${google_photos_domain}/${bucket.name}/${logoThumbnailBlob.name}?authuser=2`;
+                    logoThumbnailUrl = `${google_photos_domain}/${bucket.name}/${logoThumbnailBlob.name}`;
                 });
 
             uploadPromises.push(uploadLogo, uploadLogoThumbnail);
@@ -69,7 +69,7 @@ router.post('/new', upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'g
                 const uploadGallery = fs.promises.readFile(image.path)
                     .then(data => galleryBlob.save(data, { resumable: false }))
                     .then(() => {
-                        galleryUrls.push(`${google_photos_domain}/${bucket.name}/${galleryBlob.name}?authuser=2`);
+                        galleryUrls.push(`${google_photos_domain}/${bucket.name}/${galleryBlob.name}`);
                     });
 
                 // Create and upload the thumbnail
@@ -78,7 +78,7 @@ router.post('/new', upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'g
                     .toBuffer()
                     .then(data => galleryThumbnailBlob.save(data, { contentType: 'image/jpeg', resumable: false }))
                     .then(() => {
-                        galleryThumbnailUrls.push(`${google_photos_domain}/${bucket.name}/${galleryThumbnailBlob.name}?authuser=2`);
+                        galleryThumbnailUrls.push(`${google_photos_domain}/${bucket.name}/${galleryThumbnailBlob.name}`);
                     });
 
                 uploadPromises.push(uploadGallery, uploadGalleryThumbnail);
@@ -188,25 +188,25 @@ router.put('/update/:businessId', upload.fields([{ name: 'logoFile', maxCount: 1
         const deletePromises = [];
 
         if (logoToDelete) {
-            const oldLogoFile = bucket.file(logoToDelete.replace(`${google_photos_domain}/${bucket.name}/`, '').replace('?authuser=2', ''));
+            const oldLogoFile = bucket.file(logoToDelete.replace(`${google_photos_domain}/${bucket.name}/`, ''));
             deletePromises.push(oldLogoFile.delete());
 
             if (logoThumbnailToDelete) {
-                const oldLogoThumbnailFile = bucket.file(logoThumbnailToDelete.replace(`${google_photos_domain}/${bucket.name}/`, '').replace('?authuser=2', ''));
+                const oldLogoThumbnailFile = bucket.file(logoThumbnailToDelete.replace(`${google_photos_domain}/${bucket.name}/`, ''));
                 deletePromises.push(oldLogoThumbnailFile.delete());
             }
         }
 
         if (galleryToDelete.length > 0) {
             galleryToDelete.forEach(galleryUrl => {
-                const oldGalleryFile = bucket.file(galleryUrl.replace(`${google_photos_domain}/${bucket.name}/`, '').replace('?authuser=2', ''));
+                const oldGalleryFile = bucket.file(galleryUrl.replace(`${google_photos_domain}/${bucket.name}/`, ''));
                 deletePromises.push(oldGalleryFile.delete());
             });
         }
 
         if (galleryThumbnailsToDelete.length > 0) {
             galleryThumbnailsToDelete.forEach(galleryThumbnailUrl => {
-                const oldGalleryThumbnailFile = bucket.file(galleryThumbnailUrl.replace(`${google_photos_domain}/${bucket.name}/`, '').replace('?authuser=2', ''));
+                const oldGalleryThumbnailFile = bucket.file(galleryThumbnailUrl.replace(`${google_photos_domain}/${bucket.name}/`, ''));
                 deletePromises.push(oldGalleryThumbnailFile.delete());
             });
         }
@@ -231,7 +231,7 @@ router.put('/update/:businessId', upload.fields([{ name: 'logoFile', maxCount: 1
             const uploadLogo = fs.promises.readFile(logoFile.path)
                 .then(data => logoBlob.save(data, { resumable: false }))
                 .then(() => {
-                    newLogoUrl = `${google_photos_domain}/${bucket.name}/${logoBlob.name}?authuser=2`;
+                    newLogoUrl = `${google_photos_domain}/${bucket.name}/${logoBlob.name}`;
                 });
 
             // Create and upload the thumbnail
@@ -240,7 +240,7 @@ router.put('/update/:businessId', upload.fields([{ name: 'logoFile', maxCount: 1
                 .toBuffer()
                 .then(data => logoThumbnailBlob.save(data, { contentType: 'image/jpeg', resumable: false }))
                 .then(() => {
-                    newLogoThumbnailUrl = `${google_photos_domain}/${bucket.name}/${logoThumbnailBlob.name}?authuser=2`;
+                    newLogoThumbnailUrl = `${google_photos_domain}/${bucket.name}/${logoThumbnailBlob.name}`;
                 });
 
             uploadPromises.push(uploadLogo, uploadLogoThumbnail);
@@ -256,7 +256,7 @@ router.put('/update/:businessId', upload.fields([{ name: 'logoFile', maxCount: 1
                 const uploadGallery = fs.promises.readFile(image.path)
                     .then(data => galleryBlob.save(data, { resumable: false }))
                     .then(() => {
-                        newGalleryUrls.push(`${google_photos_domain}/${bucket.name}/${galleryBlob.name}?authuser=2`);
+                        newGalleryUrls.push(`${google_photos_domain}/${bucket.name}/${galleryBlob.name}`);
                     });
 
                 // Create and upload the thumbnail
@@ -265,7 +265,7 @@ router.put('/update/:businessId', upload.fields([{ name: 'logoFile', maxCount: 1
                     .toBuffer()
                     .then(data => galleryThumbnailBlob.save(data, { contentType: 'image/jpeg', resumable: false }))
                     .then(() => {
-                        newGalleryThumbnailUrls.push(`${google_photos_domain}/${bucket.name}/${galleryThumbnailBlob.name}?authuser=2`);
+                        newGalleryThumbnailUrls.push(`${google_photos_domain}/${bucket.name}/${galleryThumbnailBlob.name}`);
                     });
 
                 uploadPromises.push(uploadGallery, uploadGalleryThumbnail);
@@ -358,7 +358,7 @@ router.delete('/delete/:businessId', async (req, res) => {
         // Step 5: Delete the business record from the database
         await Business.findByIdAndDelete(businessId);
         await Rating.deleteMany({ business_id: businessId });
-        const businessUser = await User.findOne({ email: user_id });
+        const businessUser = await User.findById(user_id);
         await updateRating(businessUser, -1, -rating);
 
         res.status(200).json({ message: 'Business deleted successfully.' });
@@ -370,7 +370,7 @@ router.delete('/delete/:businessId', async (req, res) => {
 });
 
 const stringUrlToBucketFileName = (stringUrl) => {
-    return stringUrl.replace(`${google_photos_domain}/${bucket.name}/`, '').replace('?authuser=2', '');
+    return stringUrl.replace(`${google_photos_domain}/${bucket.name}/`, '');
 }
 
 module.exports = router;

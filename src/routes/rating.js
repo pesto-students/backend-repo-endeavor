@@ -37,7 +37,7 @@ router.post('/new', async (req, res) => {
 
         await newRating.save();
 
-        const businessUser = await User.findOne({ email: business.user_id })
+        const businessUser = await User.findById(business.user_id)
 
         // Update User and Business rating
         await updateRating(businessUser, 1, rating);
@@ -79,7 +79,7 @@ router.put('/update/:id', async (req, res) => {
         }
 
         const business = await Business.findById(existingRating.business_id);
-        const businessUser = await User.findOne({ email: business.user_id });
+        const businessUser = await User.findById(business.user_id);
 
         const ratingDifference = rating - existingRating.rating;
 
@@ -110,7 +110,7 @@ router.delete('/delete/:id', async (req, res) => {
         }
 
         const business = await Business.findById(existingRating.business_id);
-        const businessUser = await User.findOne({ email: business.user_id });
+        const businessUser = await User.findById(business.user_id);
 
         const ratingValue = existingRating.rating;
 
