@@ -1,8 +1,8 @@
 const config = require('../config/config');
 const express = require('express');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
-const { findOrCreateUser } = require('../services/user');
+const { createOrUpdateUser } = require('../services/user');
+const { addTokens } = require('../services/token');
 
 const router = express.Router();
 
@@ -18,25 +18,15 @@ router.get('/oauth2/redirect/google', (req, res, next) => {
         }
 
         try {
-            const userProfile = await findOrCreateUser(user);
+            const userProfile = await createOrUpdateUser(user);
 
-            // Payload to be encoded into the token
-            const payload = {
-                id: user.sub,
-                name: user.name
-            };
-            // Options for the token
-            const options = {
-                expiresIn: '1h', // Token expiration time (e.g., 1h, 2d)
-            };
-            // Generate JWT token
-            const token = jwt.sign(payload, config.jwt_secret, options);
+            await addTokens(res, userProfile);
 
             // Encode user profile
             const encodedUserProfile = encodeURIComponent(JSON.stringify(userProfile));
 
             // Redirect to frontend with token and user profile
-            return res.redirect(`${config.frontend_domain}${config.frontend_on_login_redirect_path}?token=${token}&user=${encodedUserProfile}`);
+            return res.redirect(`${config.frontend_domain}${config.frontend_on_login_redirect_path}?userProfile=${encodedUserProfile}`);
         } catch (error) {
             console.error('Error saving user:', error);
             return res.redirect(config.frontend_domain);

@@ -10,6 +10,7 @@ const businessRouter = require('./routes/business');
 const userRouter = require('./routes/user');
 const { router: ratingRouter } = require('./routes/rating');
 const authenticateJWT = require('./middleware/authenticateJWT');
+const cookieParser = require('cookie-parser');
 
 const app = express()
 
@@ -19,6 +20,9 @@ app.use(cors({
   methods: 'GET,POST,PATCH,PUT,DELETE',
   credentials: true, // Allow cookies to be sent
 }));
+
+// Use cookie-parser middleware
+app.use(cookieParser());
 
 // Middleware to parse JSON and URL-encoded data
 app.use(express.json());
@@ -37,11 +41,13 @@ app.use(passport.initialize());
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/auth', googleAuthRouter); 
 
+app.use(authenticateJWT);
+
 // Use business router
 app.use('/api/v1/business', businessRouter);
 
 // Use the user router
-app.use('/api/v1/user', authenticateJWT, userRouter);
+app.use('/api/v1/user', userRouter);
 
 // Use the rating router
 app.use('/api/v1/rating', ratingRouter);
