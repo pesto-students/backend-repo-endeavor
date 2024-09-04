@@ -29,7 +29,6 @@ router.post('/logout', async (req, res) => {
 // New endpoint for token refresh
 router.post('/refresh-token', async (req, res) => {
     const [accessToken, refreshToken] = getAccessAndRefreshToken(req);
-    console.log(accessToken, refreshToken, req)
     const [validationResult, user_id, userProfile] = await validateRefreshToken(refreshToken);
 
     if (!validationResult) {
