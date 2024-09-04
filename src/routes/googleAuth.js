@@ -18,15 +18,23 @@ router.get('/oauth2/redirect/google', (req, res, next) => {
         }
 
         try {
+            // Create or update user profile
             const userProfile = await createOrUpdateUser(user);
 
-            await addTokens(res, userProfile);
+            // Add tokens
+            const [accessToken, refreshToken] = await addTokens(res, userProfile);
 
             // Encode user profile
             const encodedUserProfile = encodeURIComponent(JSON.stringify(userProfile));
 
+            // Create response param
+            let responseParam = `userProfile=${encodedUserProfile}`;
+            if (!config.isCookieOptionsValid) {
+                responseParam = `accessToken=${accessToken}&refreshToken=${refreshToken}&userProfile=${encodedUserProfile}`;
+            }
+
             // Redirect to frontend with token and user profile
-            return res.redirect(`${config.frontend_domain}${config.frontend_on_login_redirect_path}?userProfile=${encodedUserProfile}`);
+            return res.redirect(`${config.frontend_domain}${config.frontend_on_login_redirect_path}?${responseParam}`);
         } catch (error) {
             console.error('Error saving user:', error);
             return res.redirect(config.frontend_domain);

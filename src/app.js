@@ -37,6 +37,14 @@ app.use(console_logging);
 // Initialize Passport
 app.use(passport.initialize());
 
+// Test endpoint to check if the server is running (no authentication required)
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'Server is listening and running fine!', 
+    port: config.port 
+  });
+});
+
 // Use the auth routers
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/auth', googleAuthRouter); 

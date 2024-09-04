@@ -17,23 +17,14 @@ const generateToken = (user, exp) => {
 
 const addTokens = async (res, userProfile) => {
     // Generate JWT token
-    const accessToken = generateToken(userProfile, '15m');
+    const accessToken = generateToken(userProfile, config.access_token_expiry);
+    const refreshToken = generateToken(userProfile, config.refresh_token_expiry);
 
-    // Set the access token as an HTTP-only cookie
-    res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: config.node_env === 'production', // Use 'secure' flag only in production
-        maxAge: 15 * 60 * 1000 // 15 minutes in milliseconds
-    });
-
-    const refreshToken = generateToken(userProfile, '2d');
-
-    // Set the refresh token as an HTTP-only cookie
-    res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: config.node_env === 'production', // Use 'secure' flag only in production
-        maxAge: 2 * 24 * 60 * 60 * 1000 // 2 days in milliseconds
-    });
+    // Set Cookie if available
+    if (config.isCookieOptionsValid) { 
+        addClientCookies(res, 'accessToken', accessToken, config.cookie_options_access_token);
+        addClientCookies(res, 'refreshToken', refreshToken, config.cookie_options_refresh_token);
+    }
 
     // Generate new token for the user
     const token = new Token({
@@ -42,12 +33,39 @@ const addTokens = async (res, userProfile) => {
         type: 'refreshToken'
     });
     await token.save();
+
+    return [accessToken, refreshToken];
+}
+
+const addClientCookies = (res, key, value, options) => {
+    const cookie_options = JSON.parse(options);
+    res.cookie(key, value, cookie_options);
 }
 
 const clearClientCookies = (res) => {
-    // Clear the cookies from server end
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    if (config.isCookieOptionsValid) {
+        // Clear the cookies from server end
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
+    }
+}
+
+const getAccessAndRefreshToken = (req) => {
+    if (config.isCookieOptionsValid) {
+        let accessToken = req.cookies.accessToken;
+        let refreshToken = req.cookies.refreshToken;
+        return [accessToken, refreshToken];
+    } else {
+        let authHeader = req.headers.authorization;
+        let accessToken = null;
+        if (authHeader) {
+            // Extract the token from the header (Assumes 'Bearer <token>')
+            accessToken = authHeader.split(' ')[1];
+        }
+
+        let refreshToken = req.headers['refresh-token'];
+        return [accessToken, refreshToken];
+    }
 }
 
 const validateRefreshToken = async (refreshToken) => {
@@ -77,5 +95,6 @@ module.exports = {
     generateToken,
     clearClientCookies,
     addTokens,
+    getAccessAndRefreshToken,
     validateRefreshToken
 };
